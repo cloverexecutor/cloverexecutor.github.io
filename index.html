@@ -112,7 +112,7 @@
       testConnection();
     });
 function testConnection() {
-  const code = 'warn("Clover has loaded!")'; // Test script for connection verification
+  const code = 'warn("Clover has loaded!")';
   fetch('http://localhost:2025/sigma', {
     method: 'POST',
     headers: {
@@ -122,22 +122,22 @@ function testConnection() {
   })
     .then(response => {
       if (!response.ok) {
-        throw new Error('Failed to execute'); // Mark as failed if status is not 200
+        throw new Error('Failed to execute'); 
       }
-      return response.text(); // Get the response body
+      return response.text(); 
     })
     .then(data => {
       console.log('Execution result:', data);
-      // Update status if the server confirms successful execution
+     
       if (data === "done, sent your script") {
-        updateStatus(true); // Set as Connected 🟢
+        updateStatus(true); 
       } else {
-        updateStatus(false); // Default to Not Connected 🔴
+        updateStatus(false); 
       }
     })
     .catch(err => {
       console.error('Connection failed:', err);
-      updateStatus(false); // Mark as Not Connected 🔴 on error
+      updateStatus(false); 
     });
 }
 
