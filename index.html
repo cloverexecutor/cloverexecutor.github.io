@@ -161,8 +161,8 @@ function updateStatus(isConnected) {
      fetch('http://localhost:2025/sigma', {
   method: 'POST',
   headers: {
-    'Content-Type': 'application/json',
-    'Access-Control-Allow-Origin': '*',
+    'Content-Type': 'application/json'
+  
   },
   body: JSON.stringify({ script: code }),
 })
