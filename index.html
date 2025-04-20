@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Clover UI</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap');
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: #0f0f0f;
+      font-family: 'JetBrains Mono', monospace;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+      flex-direction: column;
+    }
+    .glass-container {
+      width: 100vw;
+      height: 100vh;
+      background: rgba(18, 18, 18, 0.96);
+      border-radius: 0;
+      backdrop-filter: blur(10px);
+      box-shadow: none;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      border: none;
+    }
+    .header {
+      height: 40px;
+      background-color: #1b1b1b;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 16px;
+      border-bottom: 1px solid #292929;
+    }
+    .execute-btn {
+      background-color: transparent;
+      border: none;
+      padding: 6px 14px;
+      color: #bbb;
+      font-weight: 500;
+      cursor: pointer;
+      font-size: 13px;
+      border-radius: 6px;
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+    .execute-btn:hover {
+      background-color: rgba(255, 255, 255, 0.05);
+      color: #fff;
+    }
+    #editor {
+      flex: 1;
+      width: 100%;
+    }
+    .status-bar {
+      font-size: 12px;
+      color: #fff;
+      padding: 3px 6px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+    }
+    .connected {
+      background-color: #28a745;
+    }
+    .not-connected {
+      background-color: #dc3545;
+    }
+  </style>
+</head>
+<body>
+  <div class="glass-container">
+    <div class="header">
+      <div id="status-bar" class="status-bar not-connected">
+        Not Connected 🔴
+      </div>
+      <button class="execute-btn" onclick="executeCode()">Execute</button>
+    </div>
+    <div id="editor"></div>
+  </div>
+
+  <script src="https://iceycold3.github.io/monaco/vs/loader.js"></script>
+  <script>
+    let editor;
+    const statusBar = document.getElementById("status-bar");
+
+    require.config({ paths: { vs: 'https://iceycold3.github.io/monaco/vs' } });
+    require(["vs/editor/editor.main"], function () {
+      editor = monaco.editor.create(document.getElementById("editor"), {
+        value: "print(\"Hello, Clover!\")",
+        language: "lua",
+        theme: "vs-dark",
+        automaticLayout: true,
+        smoothScrolling: true,
+        fontLigatures: true,
+        fontSize: 14,
+        minimap: { enabled: false },
+        lineNumbers: "on",
+        scrollbar: {
+          verticalScrollbarSize: 6,
+          horizontalScrollbarSize: 6
+        }
+      });
+
+      testConnection();
+    });
+function testConnection() {
+  const code = 'warn("Clover has loaded!")'; // Test script for connection verification
+  fetch('http://localhost:2025/sigma', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ script: code })
+  })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Failed to execute'); // Mark as failed if status is not 200
+      }
+      return response.text(); // Get the response body
+    })
+    .then(data => {
+      console.log('Execution result:', data);
+      // Update status if the server confirms successful execution
+      if (data === "done, sent your script") {
+        updateStatus(true); // Set as Connected 🟢
+      } else {
+        updateStatus(false); // Default to Not Connected 🔴
+      }
+    })
+    .catch(err => {
+      console.error('Connection failed:', err);
+      updateStatus(false); // Mark as Not Connected 🔴 on error
+    });
+}
+
+
+
+function updateStatus(isConnected) {
+  if (isConnected) {
+    statusBar.textContent = "Connected! 🟢";
+    statusBar.classList.remove("not-connected");
+    statusBar.classList.add("connected");
+  } else {
+    statusBar.textContent = "Not Connected 🔴";
+    statusBar.classList.remove("connected");
+    statusBar.classList.add("not-connected");
+  }
+}
+
+
+    function executeCode() {
+      const code = editor.getValue();
+     fetch('http://localhost:2025/sigma', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Access-Control-Allow-Origin': '*',
+  },
+  body: JSON.stringify({ script: code }),
+})
+.then(response => response.text())
+.then(data => {
+  console.log('Executed:', data);
+})
+.catch(err => {
+  console.error('Execution error:', err);
+});
+
+    }
+  </script>
+</body>
+</html>
