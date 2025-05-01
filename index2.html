@@ -6,12 +6,14 @@
     <script src="https://cjrtnc.leaningtech.com/3_20250430_1221/loader.js"></script>
   </head>
   <body>
-    <script>
-      (async function () {
-        await cheerpjInit();
-        cheerpjCreateDisplay(800, 600);
-        await cheerpjRunJar("/app/LegacyLauncher_legacy.jar");
-      })();
-    </script>
+   <canvas id="lwjgl"></canvas>
+<script type="module">
+  await cheerpjInit({
+    javaProperties: ["java.library.path=/app/cheerpj-natives/natives"],
+  });
+  cheerpjCreateDisplay(800, 600);
+  window.lwjglCanvasElement = document.getElementById("lwjgl");
+  await cheerpjRunJar("/app/RoLaunch.jar");
+</script>
   </body>
 </html>
